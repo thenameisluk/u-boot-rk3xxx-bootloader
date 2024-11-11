@@ -1,0 +1,1 @@
+Uboot bootloader build for currently only for powkiddy x55

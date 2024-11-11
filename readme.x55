@@ -1,0 +1,25 @@
+# directories:
+# - /compile/doc/stable-rk - the files in this dir
+# - /compile/source/rkbin - https://github.com/rockchip-linux/rkbin/
+# - /compile/source/uboot-x55 - https://gitlab.com/u-boot/u-boot
+# - /compile/result/u-boot-rk - the resulting kernel, modules etc. tar.gz files
+
+cd /compile/source/rkbin
+
+./tools/boot_merger RKBOOT/RK3568MINIALL.ini
+
+cd /compile/source/uboot-x55
+
+make powkiddy-x55-rk3566_defconfig -j$(nproc)
+
+export ROCKCHIP_TPL=$(echo /compile/source/rkbin/bin/rk35/rk3566_ddr_1056MHz_v*.bin)
+export BL31=/compile/source/rkbin/bin/rk35/rk3568_bl31_v1.44.elf
+
+make spl/u-boot-spl.bin u-boot.dtb u-boot.img tools -j$(nproc)
+make CONFIG_MKIMAGE_DTC_PATH="scripts/dtc/dtc" -j$(nproc)
+
+tools/mkimage -n rk3568 -T rksd -d \
+		$ROCKCHIP_TPL:$(echo /compile/source/rkbin/rk356x_spl_loader_v*.bin) \
+		-C bzip2 idbloader.img
+
+cp -v u-boot.itb idbloader.img /compile/result/u-boot-rk/
