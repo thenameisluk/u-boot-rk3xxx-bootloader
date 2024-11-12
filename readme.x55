@@ -33,4 +33,6 @@ dd if=/dev/zero of="boot-console_x55-aarch64.dd" bs=512 count=0 seek="32801"
 dd if="idbloader.img" of="boot-console_x55-aarch64.dd" bs=512 seek=64 conv=sync,noerror,notrunc status=progress
 dd if="u-boot.itb" of="boot-console_x55-aarch64.dd" bs=512 seek=16384 conv=sync,noerror,notrunc status=progress
 
-cp -v boot-console_x55-aarch64.dd /compile/result/u-boot-rk/
+gzip boot-console_x55-aarch64.dd
+
+cp -v boot-console_x55-aarch64.dd.gz /compile/result/u-boot-rk/
