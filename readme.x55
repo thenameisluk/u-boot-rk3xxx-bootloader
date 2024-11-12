@@ -1,5 +1,5 @@
 # directories:
-# - /compile/doc/stable-rk - the files in this dir
+# - /compile/doc/stable-rk - the files in this dir (optional, not needed)
 # - /compile/source/rkbin - https://github.com/rockchip-linux/rkbin/
 # - /compile/source/uboot-x55 - https://gitlab.com/u-boot/u-boot
 # - /compile/result/u-boot-rk - the resulting kernel, modules etc. tar.gz files
@@ -23,3 +23,14 @@ tools/mkimage -n rk3568 -T rksd -d \
 		-C bzip2 idbloader.img
 
 cp -v u-boot.itb idbloader.img /compile/result/u-boot-rk/
+
+#boot image
+dd if=/dev/zero of="boot-console_x55-aarch64.dd" bs=512 count=0 seek="32801"
+/usr/sbin/parted -s "boot-console_x55-aarch64.dd" mklabel gpt
+/usr/sbin/parted -s "boot-console_x55-aarch64.dd" unit s mkpart uboot 16384 24575
+/usr/sbin/parted -s "boot-console_x55-aarch64.dd" unit s mkpart trust 24576 32767
+
+dd if="idbloader.img" of="boot-console_x55-aarch64.dd" bs=512 seek=64 conv=sync,noerror,notrunc status=progress
+dd if="u-boot.itb" of="boot-console_x55-aarch64.dd" bs=512 seek=16384 conv=sync,noerror,notrunc status=progress
+
+cp -v boot-console_x55-aarch64.dd /compile/result/u-boot-rk/
